@@ -18,7 +18,7 @@ export class ReleaseController {
   ) {
     return this.releaseService.create({
       title: body.title,
-      releaseDate: new Date(body.releaseDate),
+      releaseDate: body.releaseDate,
       artistId: body.artistId,
       coverUrl: body.coverUrl,
       audioUrl: body.audioUrl,
