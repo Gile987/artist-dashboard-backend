@@ -1,15 +1,65 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output   = "./generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  role      Role
+  releases  Release[]
+  royalties Royalty[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Release {
+  id          Int           @id @default(autoincrement())
+  title       String
+  releaseDate DateTime
+  coverUrl    String?
+  audioUrl    String?
+  artist      User          @relation(fields: [artistId], references: [id])
+  artistId    Int
+  tracks      Track[]
+  status      ReleaseStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Track {
+  id        Int       @id @default(autoincrement())
+  title     String
+  duration  Int // seconds
+  isrc      String?   @unique
+  release   Release   @relation(fields: [releaseId], references: [id])
+  releaseId Int
+  royalties Royalty[]
+}
+
+model Royalty {
+  id       Int    @id @default(autoincrement())
+  amount   Float
+  period   String // e.g., "2025-07"
+  track    Track  @relation(fields: [trackId], references: [id])
+  trackId  Int
+  artist   User   @relation(fields: [artistId], references: [id])
+  artistId Int
+}
+
+enum Role {
+  artist
+  admin
+}
+
+enum ReleaseStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
