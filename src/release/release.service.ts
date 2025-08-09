@@ -28,7 +28,7 @@ export class ReleaseService {
   }
 
   async update(id: number, data: UpdateReleaseDto): Promise<Release> {
-    await this.findOne(id); // Check exists
+    await this.findOne(id);
     return this.prisma.release.update({
       where: { id },
       data,
@@ -36,7 +36,7 @@ export class ReleaseService {
   }
 
   async delete(id: number): Promise<Release> {
-    await this.findOne(id); // Check exists
+    await this.findOne(id);
     return this.prisma.release.delete({ where: { id } });
   }
 
