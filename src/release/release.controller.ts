@@ -10,29 +10,15 @@ import {
 } from '@nestjs/common';
 import { ReleaseService } from './release.service';
 import { UpdateReleaseDto } from './dto/update-release.dto';
+import { CreateReleaseDto } from './dto/create-release.dto';
 
 @Controller('releases')
 export class ReleaseController {
   constructor(private releaseService: ReleaseService) {}
 
   @Post()
-  create(
-    @Body()
-    body: {
-      title: string;
-      releaseDate: string;
-      artistId: number;
-      coverUrl?: string;
-      audioUrl?: string;
-    },
-  ) {
-    return this.releaseService.create({
-      title: body.title,
-      releaseDate: body.releaseDate,
-      artistId: body.artistId,
-      coverUrl: body.coverUrl,
-      audioUrl: body.audioUrl,
-    });
+  create(@Body() data: CreateReleaseDto) {
+    return this.releaseService.create(data);
   }
 
   @Get('artist/:artistId')
