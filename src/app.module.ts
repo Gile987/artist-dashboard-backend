@@ -6,10 +6,12 @@ import { UserModule } from './user/user.module';
 import { PrismaService } from './prisma.service';
 import { ReleaseModule } from './release/release.module';
 import { TrackModule } from './track/track.module';
+import { FileUploadController } from './file-upload/file-upload.controller';
+import { FileUploadService } from './file-upload/file-upload.service';
 
 @Module({
   imports: [AuthModule, UserModule, ReleaseModule, TrackModule],
-  controllers: [AppController],
-  providers: [AppService, PrismaService],
+  controllers: [AppController, FileUploadController],
+  providers: [AppService, PrismaService, FileUploadService],
 })
 export class AppModule {}
