@@ -29,9 +29,18 @@ export class ReleaseService {
 
   async update(id: number, data: UpdateReleaseDto): Promise<Release> {
     await this.findOne(id);
+
+    const updateData = {
+      ...data,
+      releaseDate:
+        data.releaseDate && typeof data.releaseDate === 'string'
+          ? new Date(data.releaseDate)
+          : data.releaseDate,
+    };
+
     return this.prisma.release.update({
       where: { id },
-      data,
+      data: updateData,
     });
   }
 
