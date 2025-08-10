@@ -12,7 +12,7 @@ export class ReleaseService {
     return this.prisma.release.create({ data });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Release> {
     const release = await this.prisma.release.findUnique({
       where: { id },
       include: {
@@ -49,7 +49,7 @@ export class ReleaseService {
     return this.prisma.release.delete({ where: { id } });
   }
 
-  async findByArtist(artistId: number) {
+  async findByArtist(artistId: number): Promise<Release[]> {
     return this.prisma.release.findMany({
       where: { artistId },
       include: {

@@ -4,10 +4,12 @@ import {
   IsOptional,
   IsUrl,
   IsInt,
+  MaxLength,
 } from 'class-validator';
 
 export class CreateReleaseDto {
   @IsString()
+  @MaxLength(255)
   title!: string;
 
   @IsDateString()

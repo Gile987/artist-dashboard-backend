@@ -1,17 +1,19 @@
-import { IsString, IsInt, IsOptional, Min } from 'class-validator';
+import { IsString, IsInt, IsOptional, Min, MaxLength } from 'class-validator';
 
 export class CreateTrackDto {
   @IsString()
+  @MaxLength(255)
   title!: string;
 
   @IsInt()
   @Min(1)
-  duration!: number;
-
-  @IsOptional()
-  @IsString()
-  isrc?: string;
+  duration!: number; // seconds
 
   @IsInt()
   releaseId!: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  isrc?: string;
 }
