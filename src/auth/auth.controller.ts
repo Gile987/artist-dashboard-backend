@@ -11,10 +11,15 @@ import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import type { Request } from 'express';
+import { UserService } from '../user/user.service';
+import { UnauthorizedException } from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+  ) {}
 
   @Post('register')
   register(
@@ -56,7 +61,14 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getProfile(@Req() request: Request) {
-    return request.user; // this will be the JWT payload
+  async me(@Req() req: Request) {
+    const userId = (req.user as any).sub;
+    const user = await this.userService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    // exclude password before returning
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }
