@@ -24,11 +24,12 @@ export class AuthService {
   async register(
     email: string,
     password: string,
+    name: string,
     role: 'artist' | 'admin',
   ): Promise<{ message: string }> {
     const hashed = await bcrypt.hash(password, 10);
     await this.prisma.user.create({
-      data: { email, password: hashed, role },
+      data: { email, password: hashed, name, role },
     });
     return { message: 'User registered' };
   }
@@ -45,7 +46,12 @@ export class AuthService {
     const isValid = await bcrypt.compare(password, userRaw.password);
     if (!isValid) throw new UnauthorizedException('Invalid password');
 
-    const payload = { sub: userRaw.id, role: userRaw.role };
+    const payload = {
+      sub: userRaw.id,
+      email: userRaw.email,
+      name: userRaw.name,
+      role: userRaw.role,
+    };
     const token = this.jwtService.sign(payload);
     return { access_token: token };
   }
