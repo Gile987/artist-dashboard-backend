@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Release } from '@prisma/client';
+import { Release, ReleaseStatus } from '@prisma/client';
 import { CreateReleaseDto } from './dto/create-release.dto';
 import { UpdateReleaseDto } from './dto/update-release.dto';
 
@@ -30,13 +34,28 @@ export class ReleaseService {
   async update(id: number, data: UpdateReleaseDto): Promise<Release> {
     await this.findOne(id);
 
-    const updateData = {
+    const updateData: any = {
       ...data,
       releaseDate:
         data.releaseDate && typeof data.releaseDate === 'string'
           ? new Date(data.releaseDate)
           : data.releaseDate,
     };
+
+    // Handle status if provided (convert from string to enum)
+    if (data.status) {
+      const upperStatus = data.status.toUpperCase();
+
+      // Check if the status is a valid enum value
+      const validStatuses = Object.values(ReleaseStatus);
+      if (!validStatuses.includes(upperStatus as ReleaseStatus)) {
+        throw new BadRequestException(
+          `Invalid status value. Valid values are: ${validStatuses.join(', ')}`,
+        );
+      }
+
+      updateData.status = upperStatus;
+    }
 
     return this.prisma.release.update({
       where: { id },
