@@ -41,6 +41,7 @@ model Track {
   release   Release   @relation(fields: [releaseId], references: [id], onDelete: Cascade)
   releaseId Int
   royalties Royalty[]
+  fileUrl   String?
 }
 
 model Royalty {
