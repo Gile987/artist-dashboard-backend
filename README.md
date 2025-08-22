@@ -1,98 +1,207 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🎵 Artist Dashboard Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive backend API for music artists to manage their releases, tracks, and royalties. Built with modern technologies for scalability and security.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🎯 What This App Does
 
-## Description
+The Artist Dashboard Backend is a RESTful API that provides:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **User Management**: Artists and admins can register, login, and manage their profiles
+- **Music Release Management**: Artists can upload and manage their albums/singles with metadata
+- **Track Management**: Individual track handling with ISRC codes and file storage
+- **File Upload System**: Secure file uploads to Cloudflare R2 for audio files and cover art
+- **Royalty Tracking**: Track earnings per song and time period
+- **Role-Based Access Control**: Different permissions for artists and administrators
+- **Release Status Management**: Approval workflow for music releases
 
-## Project setup
+## 🛠️ Technologies Used
 
-```bash
-$ npm install
+### **Core Framework**
+
+- **[NestJS](https://nestjs.com/)** - Progressive Node.js framework for building scalable server-side applications
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript with enhanced developer experience
+- **[Node.js](https://nodejs.org/)** - JavaScript runtime environment
+
+### **Database & ORM**
+
+- **[PostgreSQL](https://www.postgresql.org/)** - Robust relational database
+- **[Prisma](https://www.prisma.io/)** - Modern database toolkit and ORM
+- **Database Migrations** - Version-controlled schema changes
+
+### **Authentication & Security**
+
+- **[JWT (JSON Web Tokens)](https://jwt.io/)** - Stateless authentication
+- **[bcrypt](https://www.npmjs.com/package/bcrypt)** - Password hashing and salting
+- **Cookie-based Authentication** - Secure HTTP-only cookies
+- **Role-Based Access Control** - Artist and admin permission levels
+
+### **File Storage**
+
+- **[Cloudflare R2](https://www.cloudflare.com/products/r2/)** - S3-compatible object storage
+- **[AWS SDK](https://aws.amazon.com/sdk-for-javascript/)** - S3 client for file operations
+- **Signed URLs** - Secure, temporary upload URLs
+
+### **Validation & Data**
+
+- **[class-validator](https://github.com/typestack/class-validator)** - Decorator-based validation
+- **[class-transformer](https://github.com/typestack/class-transformer)** - Object transformation
+- **DTOs (Data Transfer Objects)** - Input validation and type safety
+
+### **Development Tools**
+
+- **[ESLint](https://eslint.org/)** - Code linting and style enforcement
+- **[Prettier](https://prettier.io/)** - Code formatting
+- **[Jest](https://jestjs.io/)** - Testing framework
+- **[TypeScript ESLint](https://typescript-eslint.io/)** - TypeScript-specific linting
+
+### **Additional Dependencies**
+
+- **[Passport.js](http://www.passportjs.org/)** - Authentication middleware
+- **[cookie-parser](https://www.npmjs.com/package/cookie-parser)** - Cookie parsing middleware
+- **[RxJS](https://rxjs.dev/)** - Reactive programming library
+
+## 📊 Database Schema
+
+```
+User (Artists & Admins)
+├── id, email, password, name, role
+├── releases[] (One-to-Many)
+└── royalties[] (One-to-Many)
+
+Release (Albums/Singles)
+├── id, title, releaseDate, coverUrl, audioUrl
+├── status (PENDING/APPROVED/REJECTED)
+├── artist (Many-to-One with User)
+└── tracks[] (One-to-Many)
+
+Track (Individual Songs)
+├── id, title, duration, isrc, fileUrl
+├── release (Many-to-One with Release)
+└── royalties[] (One-to-Many)
+
+Royalty (Earnings)
+├── id, amount, period
+├── track (Many-to-One with Track)
+└── artist (Many-to-One with User)
 ```
 
-## Compile and run the project
+## 🚀 Key Features
 
-```bash
-# development
-$ npm run start
+### **Authentication System**
 
-# watch mode
-$ npm run start:dev
+- User registration and login
+- JWT-based stateless authentication
+- Cookie-based session management
+- Password hashing with bcrypt
 
-# production mode
-$ npm run start:prod
+### **File Upload Workflow**
+
+1. Client requests signed upload URL
+2. Direct upload to Cloudflare R2
+3. URL stored in database for retrieval
+
+### **Role-Based Access**
+
+- **Artists**: Can manage their own releases and tracks
+- **Admins**: Can approve/reject releases and manage all content
+
+### **Release Management**
+
+- Create releases with metadata
+- Upload cover art and audio files
+- Track approval status
+- Associate multiple tracks per release
+
+### **Data Validation**
+
+- Input validation using decorators
+- Type safety with TypeScript
+- Structured error responses
+
+## 🏗️ Project Structure
+
+```
+src/
+├── auth/           # Authentication (login, register, JWT)
+├── user/           # User management (CRUD operations)
+├── release/        # Music release management
+├── track/          # Individual track handling
+├── file-upload/    # Cloudflare R2 file operations
+├── guards/         # Security guards (JWT, roles)
+├── prisma.service.ts  # Database connection
+└── main.ts         # Application bootstrap
+
+prisma/
+├── schema.prisma   # Database schema definition
+└── migrations/     # Database migration history
 ```
 
-## Run tests
+## 📡 API Endpoints Overview
+
+### **Authentication**
+
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `POST /auth/logout` - User logout
+- `GET /auth/me` - Get current user info
+
+### **Users**
+
+- `GET /users` - List all users
+- `GET /users/:id` - Get user by ID
+- `PATCH /users/:id` - Update user profile
+
+### **Releases**
+
+- `POST /releases` - Create new release
+- `GET /releases/artist/:artistId` - Get artist's releases
+- `PATCH /releases/:id` - Update release (including status)
+- `DELETE /releases/:id` - Delete release
+
+### **Tracks**
+
+- `POST /tracks` - Create new track
+- `GET /tracks/release/:releaseId` - Get tracks for release
+- `PATCH /tracks/:id` - Update track
+- `DELETE /tracks/:id` - Delete track
+
+### **File Upload**
+
+- `GET /upload/signed-url` - Get signed URL for file upload (artists only)
+
+## 🔧 Setup & Installation
 
 ```bash
-# unit tests
-$ npm run test
+# Install dependencies
+npm install
 
-# e2e tests
-$ npm run test:e2e
+# Set up environment variables
+cp .env.example .env
 
-# test coverage
-$ npm run test:cov
+# Run database migrations
+npx prisma migrate dev
+
+# Start development server
+npm run start:dev
 ```
 
-## Deployment
+## 🌐 Environment Configuration
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```env
+DATABASE_URL=postgresql://...
+R2_ACCOUNT_ID=your_cloudflare_account_id
+R2_ACCESS_KEY=your_r2_access_key
+R2_SECRET_KEY=your_r2_secret_key
+R2_BUCKET=your_bucket_name
+JWT_SECRET=your_jwt_secret
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 📈 Development Workflow
 
-## Resources
+- **Development**: `npm run start:dev` (watch mode)
+- **Production**: `npm run start:prod`
+- **Testing**: `npm run test`
+- **Linting**: `npm run lint`
+- **Database**: `npx prisma studio` (database GUI)
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This backend serves as the foundation for a complete music distribution platform, handling everything from user authentication to file storage and royalty tracking.
