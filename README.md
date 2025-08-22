@@ -10,9 +10,8 @@ The Artist Dashboard Backend is a RESTful API that provides:
 - **Music Release Management**: Artists can upload and manage their albums/singles with metadata
 - **Track Management**: Individual track handling with ISRC codes and file storage
 - **File Upload System**: Secure file uploads to Cloudflare R2 for audio files and cover art
-- **Royalty Tracking**: Track earnings per song and time period
 - **Role-Based Access Control**: Different permissions for artists and administrators
-- **Release Status Management**: Approval workflow for music releases
+- **Release Status Management**: Approval workflow for music releases (PENDING/APPROVED/REJECTED)
 
 ## 🛠️ Technologies Used
 
@@ -66,7 +65,7 @@ The Artist Dashboard Backend is a RESTful API that provides:
 User (Artists & Admins)
 ├── id, email, password, name, role
 ├── releases[] (One-to-Many)
-└── royalties[] (One-to-Many)
+└── royalties[] (One-to-Many) *
 
 Release (Albums/Singles)
 ├── id, title, releaseDate, coverUrl, audioUrl
@@ -77,13 +76,15 @@ Release (Albums/Singles)
 Track (Individual Songs)
 ├── id, title, duration, isrc, fileUrl
 ├── release (Many-to-One with Release)
-└── royalties[] (One-to-Many)
+└── royalties[] (One-to-Many) *
 
-Royalty (Earnings)
+Royalty (Future Feature) *
 ├── id, amount, period
 ├── track (Many-to-One with Track)
 └── artist (Many-to-One with User)
 ```
+
+\*_Database schema exists but API endpoints not yet implemented_
 
 ## 🚀 Key Features
 
@@ -102,8 +103,9 @@ Royalty (Earnings)
 
 ### **Role-Based Access**
 
-- **Artists**: Can manage their own releases and tracks
-- **Admins**: Can approve/reject releases and manage all content
+- **Artists**: Can request signed URLs for file uploads to Cloudflare R2
+- **All Authenticated Users**: Can manage releases, tracks, and user profiles
+- **Role System**: Framework supports artist/admin roles (admin-specific features not yet implemented)
 
 ### **Release Management**
 
