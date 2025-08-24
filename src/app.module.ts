@@ -6,13 +6,14 @@ import { UserModule } from './user/user.module';
 import { PrismaService } from './prisma.service';
 import { ReleaseModule } from './release/release.module';
 import { TrackModule } from './track/track.module';
+import { RoyaltyModule } from './royalty/royalty.module';
 import { FileUploadController } from './file-upload/file-upload.controller';
 import { FileUploadService } from './file-upload/file-upload.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 
 @Module({
-  imports: [AuthModule, UserModule, ReleaseModule, TrackModule],
+  imports: [AuthModule, UserModule, ReleaseModule, TrackModule, RoyaltyModule],
   controllers: [AppController, FileUploadController],
   providers: [
     AppService,
