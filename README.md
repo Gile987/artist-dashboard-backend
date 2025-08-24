@@ -9,6 +9,7 @@ The Artist Dashboard Backend is a RESTful API that provides:
 - **User Management**: Artists and admins can register, login, and manage their profiles
 - **Music Release Management**: Artists can upload and manage their albums/singles with metadata
 - **Track Management**: Individual track handling with ISRC codes and file storage
+- **Royalty Management**: Admin-only system for tracking and managing artist royalties
 - **File Upload System**: Secure file uploads to Cloudflare R2 for audio files and cover art
 - **Role-Based Access Control**: Different permissions for artists and administrators
 - **Release Status Management**: Approval workflow for music releases (PENDING/APPROVED/REJECTED)
@@ -76,15 +77,13 @@ Release (Albums/Singles)
 Track (Individual Songs)
 ├── id, title, duration, isrc, fileUrl
 ├── release (Many-to-One with Release)
-└── royalties[] (One-to-Many) *
+└── royalties[] (One-to-Many)
 
-Royalty (Future Feature) *
+Royalty (Revenue Tracking)
 ├── id, amount, period
 ├── track (Many-to-One with Track)
 └── artist (Many-to-One with User)
 ```
-
-\*_Database schema exists but API endpoints not yet implemented_
 
 ## 🚀 Key Features
 
@@ -105,7 +104,8 @@ Royalty (Future Feature) *
 
 - **Artists**: Can request signed URLs for file uploads to Cloudflare R2
 - **All Authenticated Users**: Can manage releases, tracks, and user profiles
-- **Role System**: Framework supports artist/admin roles (admin-specific features not yet implemented)
+- **Admins**: Exclusive access to royalty management system
+- **Role System**: Framework supports artist/admin roles with enforced permissions
 
 ### **Release Management**
 
@@ -164,12 +164,23 @@ prisma/
 
 - `POST /tracks` - Create new track
 - `GET /tracks/release/:releaseId` - Get tracks for release
+- `GET /tracks/:id` - Get specific track
 - `PATCH /tracks/:id` - Update track
 - `DELETE /tracks/:id` - Delete track
 
 ### **File Upload**
 
 - `GET /upload/signed-url` - Get signed URL for file upload (artists only)
+
+### **Royalties** _(Admin Only)_
+
+- `POST /royalties` - Create new royalty
+- `GET /royalties` - Get all royalties
+- `GET /royalties/:id` - Get specific royalty
+- `GET /royalties/artist/:artistId` - Get royalties for specific artist
+- `GET /royalties/track/:trackId` - Get royalties for specific track
+- `PATCH /royalties/:id` - Update royalty
+- `DELETE /royalties/:id` - Delete royalty
 
 ## 🔧 Setup & Installation
 
