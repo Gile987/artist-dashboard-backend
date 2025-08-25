@@ -104,7 +104,7 @@ Royalty (Revenue Tracking)
 
 - **Artists**: Can request signed URLs for file uploads to Cloudflare R2
 - **All Authenticated Users**: Can manage releases, tracks, and user profiles
-- **Admins**: Exclusive access to royalty management system
+- **Admins**: Exclusive access to royalty management system and user deletion
 - **Role System**: Framework supports artist/admin roles with enforced permissions
 
 ### **Release Management**
@@ -152,7 +152,7 @@ prisma/
 - `GET /users` - List all users
 - `GET /users/:id` - Get user by ID
 - `PATCH /users/:id` - Update user profile
-- `DELETE /users/:id` - Delete user
+- `DELETE /users/:id` - Delete user _(Admin Only)_
 
 ### **Releases**
 
