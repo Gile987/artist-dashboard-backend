@@ -16,7 +16,7 @@ export class ReleaseService {
     return this.prisma.release.create({ data });
   }
 
-  async findOne(id: number): Promise<Release> {
+  async findOne(id: number): Promise<Release & { totalStreams: number }> {
     const release = await this.prisma.release.findUnique({
       where: { id },
       include: {
@@ -28,7 +28,17 @@ export class ReleaseService {
       },
     });
     if (!release) throw new NotFoundException('Release not found');
-    return release;
+
+    // Calculate total streams from all tracks
+    const totalStreams = release.tracks.reduce(
+      (sum, track) => sum + (track.streams || 0),
+      0,
+    );
+
+    return {
+      ...release,
+      totalStreams,
+    };
   }
 
   async update(id: number, data: UpdateReleaseDto): Promise<Release> {
@@ -68,12 +78,23 @@ export class ReleaseService {
     return this.prisma.release.delete({ where: { id } });
   }
 
-  async findByArtist(artistId: number): Promise<Release[]> {
-    return this.prisma.release.findMany({
+  async findByArtist(
+    artistId: number,
+  ): Promise<(Release & { totalStreams: number })[]> {
+    const releases = await this.prisma.release.findMany({
       where: { artistId },
       include: {
         tracks: true,
       },
     });
+
+    // Calculate total streams for each release
+    return releases.map((release) => ({
+      ...release,
+      totalStreams: release.tracks.reduce(
+        (sum, track) => sum + (track.streams || 0),
+        0,
+      ),
+    }));
   }
 }
