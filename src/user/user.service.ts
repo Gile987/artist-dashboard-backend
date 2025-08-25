@@ -83,4 +83,19 @@ export class UserService {
     const { password, ...userWithoutPassword } = updatedUser;
     return userWithoutPassword;
   }
+
+  async delete(id: number): Promise<{ message: string }> {
+    // Check if user exists
+    const existingUser = await this.findById(id);
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Delete the user (cascade will handle related records)
+    await this.prisma.user.delete({
+      where: { id },
+    });
+
+    return { message: 'User deleted successfully' };
+  }
 }

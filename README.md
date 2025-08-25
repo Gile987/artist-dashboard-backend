@@ -152,6 +152,7 @@ prisma/
 - `GET /users` - List all users
 - `GET /users/:id` - Get user by ID
 - `PATCH /users/:id` - Update user profile
+- `DELETE /users/:id` - Delete user
 
 ### **Releases**
 
