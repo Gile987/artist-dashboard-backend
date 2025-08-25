@@ -11,12 +11,12 @@ model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
   password  String
-  name      String
   role      Role
-  releases  Release[]
-  royalties Royalty[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  name      String
+  releases  Release[]
+  royalties Royalty[]
 }
 
 model Release {
@@ -25,33 +25,35 @@ model Release {
   releaseDate DateTime
   coverUrl    String?
   audioUrl    String?
-  artist      User          @relation(fields: [artistId], references: [id])
   artistId    Int
-  tracks      Track[]
   status      ReleaseStatus @default(PENDING)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  streams     Int           @default(0)
+  artist      User          @relation(fields: [artistId], references: [id])
+  tracks      Track[]
 }
 
 model Track {
   id        Int       @id @default(autoincrement())
   title     String
-  duration  Int // seconds
+  duration  Int
   isrc      String?   @unique
-  release   Release   @relation(fields: [releaseId], references: [id], onDelete: Cascade)
   releaseId Int
-  royalties Royalty[]
   fileUrl   String?
+  streams   Int       @default(0)
+  royalties Royalty[]
+  release   Release   @relation(fields: [releaseId], references: [id], onDelete: Cascade)
 }
 
 model Royalty {
   id       Int    @id @default(autoincrement())
   amount   Float
-  period   String // e.g., "2025-07"
-  track    Track  @relation(fields: [trackId], references: [id])
+  period   String
   trackId  Int
-  artist   User   @relation(fields: [artistId], references: [id])
   artistId Int
+  artist   User   @relation(fields: [artistId], references: [id])
+  track    Track  @relation(fields: [trackId], references: [id])
 }
 
 enum Role {

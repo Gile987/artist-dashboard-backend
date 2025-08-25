@@ -26,4 +26,9 @@ export class CreateTrackDto {
 
   @IsUrl()
   fileUrl!: string; //Cloudflare file URL
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  streams?: number;
 }

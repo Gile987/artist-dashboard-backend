@@ -5,6 +5,7 @@ import {
   IsUrl,
   IsInt,
   MaxLength,
+  Min,
 } from 'class-validator';
 
 export class CreateReleaseDto {
@@ -25,4 +26,9 @@ export class CreateReleaseDto {
 
   @IsInt()
   artistId!: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  streams?: number;
 }

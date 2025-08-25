@@ -8,7 +8,8 @@ The Artist Dashboard Backend is a RESTful API that provides:
 
 - **User Management**: Artists and admins can register, login, and manage their profiles
 - **Music Release Management**: Artists can upload and manage their albums/singles with metadata
-- **Track Management**: Individual track handling with ISRC codes and file storage
+- **Track Management**: Individual track handling with ISRC codes, file storage, and streaming analytics
+- **Stream Analytics**: Track-level stream counts with automatic release total calculations
 - **Royalty Management**: Admin-only system for tracking and managing artist royalties
 - **File Upload System**: Secure file uploads to Cloudflare R2 for audio files and cover art
 - **Role-Based Access Control**: Different permissions for artists and administrators
@@ -113,6 +114,14 @@ Royalty (Revenue Tracking)
 - Upload cover art and audio files
 - Track approval status
 - Associate multiple tracks per release
+- Automatic total streams calculation from associated tracks
+
+### **Stream Analytics**
+
+- **Track-Level Streams**: Each track can have its own stream count
+- **Release Total Streams**: Automatically calculated as the sum of all track streams
+- **Real-Time Updates**: Stream counts can be updated via API
+- **Analytics Ready**: Data structure prepared for advanced analytics features
 
 ### **Data Validation**
 
@@ -157,16 +166,17 @@ prisma/
 ### **Releases**
 
 - `POST /releases` - Create new release
-- `GET /releases/artist/:artistId` - Get artist's releases
+- `GET /releases/artist/:artistId` - Get artist's releases (includes totalStreams)
+- `GET /releases/:id` - Get release details (includes totalStreams calculated from tracks)
 - `PATCH /releases/:id` - Update release (including status)
 - `DELETE /releases/:id` - Delete release
 
 ### **Tracks**
 
-- `POST /tracks` - Create new track
-- `GET /tracks/release/:releaseId` - Get tracks for release
-- `GET /tracks/:id` - Get specific track
-- `PATCH /tracks/:id` - Update track
+- `POST /tracks` - Create new track (with optional streams count)
+- `GET /tracks/release/:releaseId` - Get tracks for release (includes streams)
+- `GET /tracks/:id` - Get specific track (includes streams)
+- `PATCH /tracks/:id` - Update track (including streams)
 - `DELETE /tracks/:id` - Delete track
 
 ### **File Upload**
@@ -183,7 +193,51 @@ prisma/
 - `PATCH /royalties/:id` - Update royalty
 - `DELETE /royalties/:id` - Delete royalty
 
-## 🔧 Setup & Installation
+## � API Usage Examples
+
+### **Creating a Track with Streams**
+
+```bash
+POST /tracks
+Content-Type: application/json
+Authorization: Bearer <your-jwt-token>
+
+{
+  "title": "My Amazing Song",
+  "duration": 180,
+  "releaseId": 1,
+  "fileUrl": "https://your-bucket.r2.dev/track.mp3",
+  "streams": 5000
+}
+```
+
+### **Getting Release with Total Streams**
+
+```bash
+GET /releases/1
+Authorization: Bearer <your-jwt-token>
+
+# Response includes:
+{
+  "id": 1,
+  "title": "My Album",
+  "totalStreams": 15000,  # Sum of all track streams
+  "tracks": [
+    {
+      "id": 1,
+      "title": "Track 1",
+      "streams": 5000
+    },
+    {
+      "id": 2,
+      "title": "Track 2",
+      "streams": 10000
+    }
+  ]
+}
+```
+
+## �🔧 Setup & Installation
 
 ```bash
 # Install dependencies
