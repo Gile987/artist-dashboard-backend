@@ -29,7 +29,6 @@ export class ReleaseService {
     });
     if (!release) throw new NotFoundException('Release not found');
 
-    // Calculate total streams from all tracks
     const totalStreams = release.tracks.reduce(
       (sum, track) => sum + (track.streams || 0),
       0,
@@ -52,11 +51,9 @@ export class ReleaseService {
           : data.releaseDate,
     };
 
-    // Handle status if provided (convert from string to enum)
     if (data.status) {
       const upperStatus = data.status.toUpperCase();
 
-      // Check if the status is a valid enum value
       const validStatuses = Object.values(ReleaseStatus);
       if (!validStatuses.includes(upperStatus as ReleaseStatus)) {
         throw new BadRequestException(
@@ -88,7 +85,6 @@ export class ReleaseService {
       },
     });
 
-    // Calculate total streams for each release
     return releases.map((release) => ({
       ...release,
       totalStreams: release.tracks.reduce(
