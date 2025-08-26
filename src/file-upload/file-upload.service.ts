@@ -26,10 +26,16 @@ export class FileUploadService {
       Bucket: process.env.R2_BUCKET,
       Key: filename,
       ContentType: contentType,
+      // Add metadata to help with CORS
+      Metadata: {
+        'uploaded-via': 'signed-url',
+      },
     });
+
     const signedUrl = await getSignedUrl(this.s3Client, command, {
-      expiresIn: 300,
-    }); // 5 mins
+      expiresIn: 300, // 5 mins
+    });
+
     return signedUrl;
   }
 }

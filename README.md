@@ -27,6 +27,7 @@ The Artist Dashboard Backend is a RESTful API that provides:
 
 - **[PostgreSQL](https://www.postgresql.org/)** - Robust relational database
 - **[Prisma](https://www.prisma.io/)** - Modern database toolkit and ORM
+- **Prisma Middleware** - Custom middleware for automatic stream analytics calculations
 - **Database Migrations** - Version-controlled schema changes
 
 ### **Authentication & Security**
@@ -72,11 +73,13 @@ User (Artists & Admins)
 Release (Albums/Singles)
 ├── id, title, releaseDate, coverUrl, audioUrl
 ├── status (PENDING/APPROVED/REJECTED)
+├── streams (denormalized total from tracks)
 ├── artist (Many-to-One with User)
 └── tracks[] (One-to-Many)
 
 Track (Individual Songs)
 ├── id, title, duration, isrc, fileUrl
+├── streams (individual track stream count)
 ├── release (Many-to-One with Release)
 └── royalties[] (One-to-Many)
 
@@ -118,10 +121,16 @@ Royalty (Revenue Tracking)
 
 ### **Stream Analytics**
 
-- **Track-Level Streams**: Each track can have its own stream count
-- **Release Total Streams**: Automatically calculated as the sum of all track streams
-- **Real-Time Updates**: Stream counts can be updated via API
-- **Analytics Ready**: Data structure prepared for advanced analytics features
+- **Track-Level Streams**: Each track maintains its own stream count with real-time updates
+- **Release Total Streams**: Automatically calculated and stored as the sum of all track streams
+- **Database-Level Automation**: Uses Prisma middleware to automatically recalculate release totals when:
+  - Track streams are updated via API
+  - New tracks are added to a release
+  - Tracks are deleted from a release
+- **Performance Optimized**: Uses denormalized storage for fast retrieval of release totals
+- **Zero-Dependency Architecture**: No circular dependencies between services
+- **Transparent Operations**: Stream recalculation happens automatically at the database level
+- **API Integration Ready**: Stream data can be updated from external analytics services
 
 ### **Data Validation**
 
@@ -139,7 +148,7 @@ src/
 ├── track/          # Individual track handling
 ├── file-upload/    # Cloudflare R2 file operations
 ├── guards/         # Security guards (JWT, roles)
-├── prisma.service.ts  # Database connection
+├── prisma.service.ts  # Database connection + stream analytics middleware
 └── main.ts         # Application bootstrap
 
 prisma/
@@ -176,8 +185,8 @@ prisma/
 - `POST /tracks` - Create new track (with optional streams count)
 - `GET /tracks/release/:releaseId` - Get tracks for release (includes streams)
 - `GET /tracks/:id` - Get specific track (includes streams)
-- `PATCH /tracks/:id` - Update track (including streams)
-- `DELETE /tracks/:id` - Delete track
+- `PATCH /tracks/:id` - Update track (including streams - automatically updates release totals)
+- `DELETE /tracks/:id` - Delete track (automatically updates release totals)
 
 ### **File Upload**
 
@@ -193,7 +202,25 @@ prisma/
 - `PATCH /royalties/:id` - Update royalty
 - `DELETE /royalties/:id` - Delete royalty
 
-## � API Usage Examples
+## 🔄 API Usage Examples
+
+### **Updating Track Streams (Auto-Updates Release Totals)**
+
+```bash
+PATCH /tracks/1
+Content-Type: application/json
+Authorization: Bearer <your-jwt-token>
+
+{
+  "streams": 7500
+}
+
+# This automatically:
+# 1. Updates the track's stream count in the database
+# 2. Prisma middleware intercepts the operation
+# 3. Automatically recalculates and updates release total streams
+# 4. All happens transparently without additional API calls
+```
 
 ### **Creating a Track with Streams**
 
@@ -217,11 +244,12 @@ Authorization: Bearer <your-jwt-token>
 GET /releases/1
 Authorization: Bearer <your-jwt-token>
 
-# Response includes:
+# Response includes real-time calculated totals:
 {
   "id": 1,
   "title": "My Album",
-  "totalStreams": 15000,  # Sum of all track streams
+  "streams": 15000,        # Stored total (sum of all track streams)
+  "totalStreams": 15000,   # Same value, included for API compatibility
   "tracks": [
     {
       "id": 1,
@@ -236,6 +264,27 @@ Authorization: Bearer <your-jwt-token>
   ]
 }
 ```
+
+## ⚡ Stream Analytics Architecture
+
+### **Prisma Middleware Integration**
+
+The system uses Prisma middleware to ensure release totals stay synchronized at the database level:
+
+1. **Track Operation Initiated**: Any track create, update, or delete operation
+2. **Prisma Middleware Intercepts**: Database operation is intercepted by custom middleware
+3. **Track Operation Completes**: Original track operation executes normally
+4. **Automatic Recalculation**: Middleware automatically recalculates release total streams
+5. **Denormalized Storage**: Updated total is stored in the release record for fast retrieval
+
+### **Benefits**
+
+- **Zero Dependencies**: No circular dependencies between services
+- **Database-Level Consistency**: Impossible to have mismatched stream totals
+- **Performance**: No need to calculate totals on every release fetch
+- **Transparent**: Works with any track operation without code changes
+- **Error Resilient**: Recalculation failures don't break main operations
+- **Future-Proof**: Automatically handles direct database operations and migrations
 
 ## �🔧 Setup & Installation
 

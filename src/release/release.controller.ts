@@ -27,6 +27,11 @@ export class ReleaseController {
     return this.releaseService.findByArtist(Number(artistId));
   }
 
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.releaseService.findOne(id);
+  }
+
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
