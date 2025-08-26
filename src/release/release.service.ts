@@ -29,10 +29,7 @@ export class ReleaseService {
     });
     if (!release) throw new NotFoundException('Release not found');
 
-    const totalStreams = release.tracks.reduce(
-      (sum, track) => sum + (track.streams || 0),
-      0,
-    );
+    const totalStreams = release.streams || 0;
 
     return {
       ...release,
@@ -87,10 +84,24 @@ export class ReleaseService {
 
     return releases.map((release) => ({
       ...release,
-      totalStreams: release.tracks.reduce(
-        (sum, track) => sum + (track.streams || 0),
-        0,
-      ),
+      totalStreams: release.streams || 0,
     }));
+  }
+
+  async recalculateReleaseStreams(releaseId: number): Promise<void> {
+    const tracks = await this.prisma.track.findMany({
+      where: { releaseId },
+      select: { streams: true },
+    });
+
+    const totalStreams = tracks.reduce(
+      (sum, track) => sum + (track.streams || 0),
+      0,
+    );
+
+    await this.prisma.release.update({
+      where: { id: releaseId },
+      data: { streams: totalStreams },
+    });
   }
 }
