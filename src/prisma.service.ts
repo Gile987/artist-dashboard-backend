@@ -31,9 +31,19 @@ export class PrismaService
           releaseId = params.args.where.releaseId;
         }
 
-        // Recalculate release total streams if we have a releaseId
         if (releaseId) {
-          await this.recalculateReleaseStreams(releaseId);
+          await this.recalculateReleaseStreamsAndRoyalties(releaseId);
+        }
+
+        if (params.action === 'update' || params.action === 'create') {
+          const trackId = result.id;
+          const streams = result.streams || 0;
+          const royalty = streams * 0.01;
+
+          await this.track.update({
+            where: { id: trackId },
+            data: { royalty },
+          });
         }
 
         return result;
@@ -43,10 +53,9 @@ export class PrismaService
     });
   }
 
-  /**
-   * Recalculate and update the total streams for a release
-   */
-  private async recalculateReleaseStreams(releaseId: number): Promise<void> {
+  private async recalculateReleaseStreamsAndRoyalties(
+    releaseId: number,
+  ): Promise<void> {
     try {
       const tracks = await this.track.findMany({
         where: { releaseId },
@@ -57,15 +66,16 @@ export class PrismaService
         (sum, track) => sum + (track.streams || 0),
         0,
       );
+      const totalRoyalty = tracks.reduce(
+        (sum, track) => sum + (track.streams || 0) * 0.01,
+        0,
+      );
 
       await this.release.update({
         where: { id: releaseId },
-        data: { streams: totalStreams },
+        data: { streams: totalStreams, totalRoyalty },
       });
-    } catch (error) {
-      // Log error but don't throw to avoid breaking the main operation
-      // In production, you might want to use a proper logger here
-    }
+    } catch (error) {}
   }
 
   async onModuleDestroy() {
