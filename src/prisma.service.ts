@@ -9,29 +9,45 @@ export class PrismaService
   async onModuleInit() {
     await this.$connect();
 
-    // Add middleware to automatically update release streams when tracks change
     this.$use(async (params, next) => {
-      // Only handle Track operations
       if (params.model === 'Track') {
+        console.log(
+          `Prisma Middleware: Handling Track operation - Action: ${params.action}`,
+        );
+
+        if (
+          params.action === 'update' &&
+          params.args.data?.royalty !== undefined
+        ) {
+          console.log('Skipping middleware for internal royalty update');
+          return next(params);
+        }
+
         const result = await next(params);
 
-        // Get the releaseId from different operation types
         let releaseId: number | null = null;
 
         if (params.action === 'create' && result) {
           releaseId = result.releaseId;
+          console.log(`Track created with releaseId: ${releaseId}`);
         } else if (params.action === 'update' && result) {
           releaseId = result.releaseId;
+          console.log(`Track updated with releaseId: ${releaseId}`);
         } else if (params.action === 'delete' && result) {
           releaseId = result.releaseId;
+          console.log(`Track deleted with releaseId: ${releaseId}`);
         } else if (
           params.action === 'updateMany' &&
           params.args.where?.releaseId
         ) {
           releaseId = params.args.where.releaseId;
+          console.log(`Multiple tracks updated for releaseId: ${releaseId}`);
         }
 
         if (releaseId) {
+          console.log(
+            `Recalculating release streams and royalties for releaseId: ${releaseId}`,
+          );
           await this.recalculateReleaseStreamsAndRoyalties(releaseId);
         }
 
@@ -39,6 +55,10 @@ export class PrismaService
           const trackId = result.id;
           const streams = result.streams || 0;
           const royalty = streams * 0.01;
+
+          console.log(
+            `Updating trackId: ${trackId} with streams: ${streams} and royalty: ${royalty}`,
+          );
 
           await this.track.update({
             where: { id: trackId },
