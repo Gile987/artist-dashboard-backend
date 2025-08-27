@@ -132,6 +132,34 @@ Royalty (Revenue Tracking)
 - **Transparent Operations**: Stream recalculation happens automatically at the database level
 - **API Integration Ready**: Stream data can be updated from external analytics services
 
+### **Royalty Calculation**
+
+- **Track-Level Royalties**: Each track now calculates its royalty based on the formula `streams * 0.01`. This ensures that royalties are directly proportional to the number of streams a track receives.
+- **Release Total Royalties**: The total royalty for a release is automatically calculated as the sum of royalties for all tracks associated with the release.
+- **Database-Level Automation**: Prisma middleware ensures that royalties are recalculated whenever:
+  - A track's stream count is updated.
+  - A new track is added to a release.
+  - A track is deleted from a release.
+- **Transparency**: These calculations happen automatically at the database level, requiring no additional API calls or manual intervention.
+
+### **Example: Updating Track Streams**
+
+```bash
+PATCH /tracks/1
+Content-Type: application/json
+Authorization: Bearer <your-jwt-token>
+
+{
+  "streams": 7500
+}
+
+# This automatically:
+# 1. Updates the track's stream count in the database
+# 2. Recalculates the track's royalty as `streams * 0.01`
+# 3. Updates the release's total royalty to reflect the new track royalty
+# 4. All happens transparently without additional API calls
+```
+
 ### **Data Validation**
 
 - Input validation using decorators

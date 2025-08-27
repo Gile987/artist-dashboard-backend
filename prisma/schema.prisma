@@ -30,6 +30,7 @@ model Release {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   streams     Int           @default(0)
+  totalRoyalty Float         @default(0) // Total royalty for all tracks in the release
   artist      User          @relation(fields: [artistId], references: [id])
   tracks      Track[]
 }
@@ -42,6 +43,7 @@ model Track {
   releaseId Int
   fileUrl   String?
   streams   Int       @default(0)
+  royalty   Float     @default(0) // Royalty calculated as streams * 0.01
   royalties Royalty[]
   release   Release   @relation(fields: [releaseId], references: [id], onDelete: Cascade)
 }
