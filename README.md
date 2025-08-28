@@ -10,7 +10,7 @@ The Artist Dashboard Backend is a RESTful API that provides:
 - **Music Release Management**: Artists can upload and manage their albums/singles with metadata
 - **Track Management**: Individual track handling with ISRC codes, file storage, and streaming analytics
 - **Stream Analytics**: Track-level stream counts with automatic release total calculations
-- **Royalty Management**: Admin-only system for tracking and managing artist royalties
+- **Royalty Management**: Publicly queryable royalties, but only admins can create, update, or delete royalty records
 - **File Upload System**: Secure file uploads to Cloudflare R2 for audio files and cover art
 - **Role-Based Access Control**: Different permissions for artists and administrators
 - **Release Status Management**: Approval workflow for music releases (PENDING/APPROVED/REJECTED)
@@ -220,15 +220,15 @@ prisma/
 
 - `GET /upload/signed-url` - Get signed URL for file upload (artists only)
 
-### **Royalties** _(Admin Only)_
+### **Royalties**
 
-- `POST /royalties` - Create new royalty
-- `GET /royalties` - Get all royalties
-- `GET /royalties/:id` - Get specific royalty
-- `GET /royalties/artist/:artistId` - Get royalties for specific artist
-- `GET /royalties/track/:trackId` - Get royalties for specific track
-- `PATCH /royalties/:id` - Update royalty
-- `DELETE /royalties/:id` - Delete royalty
+- `POST /royalties` - Create new royalty _(Admin Only)_
+- `GET /royalties` - Get all royalties _(Public)_
+- `GET /royalties/:id` - Get specific royalty _(Public)_
+- `GET /royalties/artist/:artistId` - Get royalties for specific artist _(Public)_
+- `GET /royalties/track/:trackId` - Get royalties for specific track _(Public)_
+- `PATCH /royalties/:id` - Update royalty _(Admin Only)_
+- `DELETE /royalties/:id` - Delete royalty _(Admin Only)_
 
 ## 🔄 API Usage Examples
 
