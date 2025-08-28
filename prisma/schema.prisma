@@ -56,6 +56,8 @@ model Royalty {
   artistId Int
   artist   User   @relation(fields: [artistId], references: [id])
   track    Track  @relation(fields: [trackId], references: [id])
+
+  @@unique([trackId, period])
 }
 
 enum Role {

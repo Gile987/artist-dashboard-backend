@@ -17,12 +17,12 @@ import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../guards/roles.decorator';
 
 @Controller('royalties')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
 export class RoyaltyController {
   constructor(private readonly royaltyService: RoyaltyService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   create(@Body() createRoyaltyDto: CreateRoyaltyDto) {
     return this.royaltyService.create(createRoyaltyDto);
   }
@@ -48,6 +48,8 @@ export class RoyaltyController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateRoyaltyDto: UpdateRoyaltyDto,
@@ -56,6 +58,8 @@ export class RoyaltyController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.royaltyService.remove(id);
   }

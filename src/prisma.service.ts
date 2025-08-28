@@ -26,44 +26,48 @@ export class PrismaService
         const result = await next(params);
 
         let releaseId: number | null = null;
-
         if (params.action === 'create' && result) {
           releaseId = result.releaseId;
-          console.log(`Track created with releaseId: ${releaseId}`);
         } else if (params.action === 'update' && result) {
           releaseId = result.releaseId;
-          console.log(`Track updated with releaseId: ${releaseId}`);
         } else if (params.action === 'delete' && result) {
           releaseId = result.releaseId;
-          console.log(`Track deleted with releaseId: ${releaseId}`);
         } else if (
           params.action === 'updateMany' &&
           params.args.where?.releaseId
         ) {
           releaseId = params.args.where.releaseId;
-          console.log(`Multiple tracks updated for releaseId: ${releaseId}`);
         }
 
         if (releaseId) {
-          console.log(
-            `Recalculating release streams and royalties for releaseId: ${releaseId}`,
-          );
           await this.recalculateReleaseStreamsAndRoyalties(releaseId);
         }
 
-        if (params.action === 'update' || params.action === 'create') {
+        if (
+          (params.action === 'update' || params.action === 'create') &&
+          result
+        ) {
           const trackId = result.id;
           const streams = result.streams || 0;
           const royalty = streams * 0.01;
-
-          console.log(
-            `Updating trackId: ${trackId} with streams: ${streams} and royalty: ${royalty}`,
-          );
-
           await this.track.update({
             where: { id: trackId },
             data: { royalty },
           });
+          const track = await this.track.findUnique({
+            where: { id: trackId },
+            select: { release: { select: { artistId: true } } },
+          });
+          const artistId = track?.release?.artistId;
+          if (artistId) {
+            const now = new Date();
+            const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            await this.royalty.upsert({
+              where: { trackId_period: { trackId, period } },
+              update: { amount: royalty, artistId },
+              create: { amount: royalty, period, trackId, artistId },
+            });
+          }
         }
 
         return result;
