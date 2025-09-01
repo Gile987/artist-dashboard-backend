@@ -2,6 +2,8 @@
 
 A comprehensive backend API for music artists to manage their releases, tracks, and royalties. Built with modern technologies for scalability and security.
 
+> **🖥️ Frontend Application**: The complete frontend for this backend is available at [music-dist](https://github.com/Gile987/music-dist)
+
 ## 🎯 What This App Does
 
 The Artist Dashboard Backend is a RESTful API that provides:
