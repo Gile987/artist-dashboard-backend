@@ -29,6 +29,11 @@ export class TrackService {
 
   async delete(id: number): Promise<Track> {
     await this.findOne(id);
+
+    await this.prisma.royalty.deleteMany({
+      where: { trackId: id },
+    });
+
     return this.prisma.track.delete({ where: { id } });
   }
 }
